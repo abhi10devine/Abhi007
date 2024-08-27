@@ -1,31 +1,54 @@
-name: Demo Build and Deploy Workflow
+name: Full CI/CD Pipeline Demo
 'on':
   push:
     branches:
       - main
 jobs:
   build:
+    name: Build (CI)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
         uses: actions/checkout@v2
-      - name: Build Demo Project
+      - name: Set Up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+      - name: Install Dependencies
+        run: |
+          echo "Installing dependencies..."
+          # Example: npm install or other commands depending on your project
+      - name: Run Tests
+        run: |
+          echo "Running tests..."
+          # Example: npm test or other commands depending on your project
+      - name: Build Project
         run: >
           mkdir -p build
 
-          echo "<!DOCTYPE
-          html><html><head><title>Demo</title></head><body><h1>Hello,
-          Abhishek!</h1><p>This is a demo build.</p></body></html>" >
-          build/index.html
+          echo "<!DOCTYPE html><html><head><title>CI/CD
+          Demo</title></head><body><h1>Hello, Abhishek!</h1><p>This is a demo
+          CI/CD build.</p></body></html>" > build/index.html
+
+          ls -al build # List files in the build directory to verify contents
   deploy:
+    name: Deploy (CD)
     runs-on: ubuntu-latest
     needs: build
     steps:
       - name: Checkout Code
         uses: actions/checkout@v2
+      - name: Verify Build Directory
+        run: |
+          echo "Verifying build directory..."
+          if [ ! -d build ] || [ -z "$(ls -A build)" ]; then
+            echo "Build directory is missing or empty. Exiting."
+            exit 1
+          fi
       - name: Deploy to Demo Directory
         run: |
           mkdir -p ~/demo-deployment
           cp -R build/* ~/demo-deployment/
-          echo "Demo deployment completed. Files are in ~/demo-deployment/"
+          echo "Deployment completed. Files are in ~/demo-deployment/"
+
 
